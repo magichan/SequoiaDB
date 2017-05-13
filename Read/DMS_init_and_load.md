@@ -20,11 +20,16 @@ op4_1_no_1=>operation: 利用 mmap 函数装载 dms_header ,并且把装载后�
 op4_1_no_2=>operation: 映射 dmsSpaceManagementExtent(SME) 变量 
 op4_1_no_3=>operation: 将 SME 扔到 _semMgr() 的 init 函数中，将 _semMgr 初始化 
 op4_1_no_3_1=>operation: _semMgr 是 dmsSMEMgr 变量,以page为单位管理文件，利用 SME 的 mask 识别 page 的使用情况，dmsSegmentSpace 存储
-op4_1_no_3_2=>operation: 从文件中装载 dmsMetadataMangementExtent(MME) 变量，并且在内存中初始化
+op4_1_no_3_2=>operation: _onMapMeta() 从文件中装载 dmsMetadataMangementExtent(MME) 变量，并且在内存中初始化
 op4_1_no_3_2_1=>operation: 初始化的过程: 依次读取 MB 
 op4_1_no_3_2_2=>operation: MB 被使用，则将他的 collectionname 和 mbID(在 MME._mblist 的第几个) 插入到 Data._collectionNameMap 中 
 op4_1_no_3_2_3=>operation: 将 MB 的信息(eg，totalRecords, totalDtatpages, totalDataFreeSpace) 复制到 Data._mbStatInfo[i] 中　
+op4_1_no_4=>operation: 根据 header 里的 sizes 信息，依次从文件中将这些内容 以 _getSegmentSize() 的大小划分成一个个 segment
+op4_1_no_5=>operation: 每次形成的 segment 都会被放到 ossMmapFile 的 _segment 中，并且 Base._dataSegId 和 Base._maxSegID 指明了这些segment在 _segment(vector)的位置范围
+op4_1_no_6=>operation: 初始化 回写链 _dirtyList 
+op4_2=>operation: 开启 index 和 lob 的 Data 
 
+op5=>operation: dmsCB->addCollectionSpace: 根据 csName 将数据在 storageUnit 中初始化
 
 
 ```
