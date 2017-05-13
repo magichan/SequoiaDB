@@ -58,6 +58,7 @@ namespace engine
 
    _pmdController::_pmdController ()
    {
+     // pmd Controller 的初始化
       _pTcpListener        = NULL ;
       _pHttpListener       = NULL ;
       _pMongoListener      = NULL ;
@@ -257,15 +258,20 @@ namespace engine
       if ( SDB_ROLE_DATA == dbrole )
       {
          PMD_REGISTER_CB( sdbGetDPSCB() ) ;        // DPS
+         // database protect system 数据保护服务
          PMD_REGISTER_CB( sdbGetTransCB() ) ;      // TRANS
+         // 事务功能
          PMD_REGISTER_CB( sdbGetClsCB() ) ;        // CLS
+         // 集群管理功能
          PMD_REGISTER_CB( sdbGetBPSCB() ) ;        // BPS
+		 
       }
       else if ( SDB_ROLE_COORD == dbrole )
       {
          PMD_REGISTER_CB( sdbGetTransCB() ) ;      // TRANS
          PMD_REGISTER_CB( sdbGetCoordCB() ) ;      // COORD
          PMD_REGISTER_CB( sdbGetFMPCB () ) ;       // FMP
+         // 外部消息协议模块
       }
       else if ( SDB_ROLE_CATALOG == dbrole )
       {
@@ -273,8 +279,10 @@ namespace engine
          PMD_REGISTER_CB( sdbGetTransCB() ) ;      // TRANS
          PMD_REGISTER_CB( sdbGetClsCB() ) ;        // CLS
          PMD_REGISTER_CB( sdbGetCatalogueCB() ) ;  // CATALOGUE
+         // 编目信息服务模块
          PMD_REGISTER_CB( sdbGetBPSCB() ) ;        // BPS
          PMD_REGISTER_CB( sdbGetAuthCB() ) ;       // AUTH
+          //鉴权模块
       }
       else if ( SDB_ROLE_STANDALONE == dbrole )
       {
@@ -289,12 +297,18 @@ namespace engine
          PMD_REGISTER_CB( sdbGetBPSCB() ) ;        // BPS
          PMD_REGISTER_CB( sdbGetAuthCB() ) ;       // AUTH
          PMD_REGISTER_CB( sdbGetOMManager() ) ;    // OMSVC
+		 // OMSMV OM service ,
       }
       PMD_REGISTER_CB( sdbGetDMSCB() ) ;           // DMS
+	  // data manage system ,the core of database 
       PMD_REGISTER_CB( sdbGetRTNCB() ) ;           // RTN
+	  // 平台运行库，主要是跨平台的api封装
       PMD_REGISTER_CB( sdbGetSQLCB() ) ;           // SQL
+	  //  sql语言支持模块
       PMD_REGISTER_CB( sdbGetAggrCB() ) ;          // AGGR
+	  // 数据聚集服务模块
       PMD_REGISTER_CB( sdbGetPMDController() ) ;   // CONTROLLER
+   //  pmdGetKRCB()->registerCB(pCB, (void*)pCB)
    }
 
    void _pmdController::detachSessionInfo( restSessionInfo * pSessionInfo )

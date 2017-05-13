@@ -83,8 +83,10 @@ namespace engine
                    _storageInfo._suName, sequence, DMS_DATA_SU_EXT_NAME ) ;
       ossSnprintf( idxFileName, DMS_SU_FILENAME_SZ, "%s.%d.%s",
                    _storageInfo._suName, sequence, DMS_INDEX_SU_EXT_NAME ) ;
+      // 构建 data 和 idx 的文件名
 
       _pDataSu = SDB_OSS_NEW dmsStorageData( dataFileName, &_storageInfo ) ;
+      // dmsStorageData 装载 datafile
       if ( _pDataSu )
       {
          _pIndexSu = SDB_OSS_NEW dmsStorageIndex( idxFileName, &_storageInfo,

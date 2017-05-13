@@ -103,10 +103,13 @@ namespace engine
 
    private :
       vector<dmsSegmentSpace*>   _segments ;
+      // 
       ossRWMutex                 _mutex ;
       UINT32                     _pageSize ;
       _dmsStorageBase            *_pStorageBase ;
+      // 指向父亲
       _dmsSpaceManagementExtent  *_pSME ;
+      // 指向源信息 ,描述 page 是否被使用
       ossAtomic32                _totalFree ;
 
    public :

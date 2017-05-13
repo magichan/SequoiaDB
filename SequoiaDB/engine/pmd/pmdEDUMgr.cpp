@@ -572,11 +572,12 @@ namespace engine
          goto done ;
       }
       /****************** CRITICAL SECTION **********************/
-      _mutex.get () ;
+      _mutex.get () ; // 队列上锁
       if ( TRUE == _idleQueue.empty () || !isPoolable ( type ) )
       {
          _mutex.release () ;
          rc = createNewEDU ( type, arg, eduid ) ;
+         // 创建并且放入队列中
          if ( SDB_OK == rc )
             goto done ;
          goto error ;
@@ -586,6 +587,7 @@ namespace engine
             ( _idleQueue.end () != it ) &&
             ( PMD_EDU_IDLE != ( *it ).second->getStatus ()) ;
             it ++ ) ;
+      // 闲置或是队列尾
 
       if ( _idleQueue.end () == it )
       {
@@ -594,11 +596,11 @@ namespace engine
          if ( SDB_OK == rc )
             goto done ;
          goto error ;
-      }
+      }// 创建一个闲置的　EDU 
 
       eduID = ( *it ).first ;
       eduCB = ( *it ).second ;
-      _idleQueue.erase ( eduID ) ;
+      _idleQueue.erase ( eduID ) ; // 格式化
       SDB_ASSERT ( isPoolable ( type ),
                    "must be agent/coordagent/subagent" ) ;
       eduCB->setType ( type ) ;

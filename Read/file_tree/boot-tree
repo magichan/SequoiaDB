@@ -1,0 +1,22 @@
+.
+├── build.py
+├── client
+├── conf
+├── doc
+├── driver
+├── gitbuild
+├── GNU-AGPL-3.0.txt
+├── java
+├── misc
+├── NOTICE
+├── package
+├── Read
+├── README.md
+├── SConstruct
+├── script
+├── SequoiaDB
+├── site_scons
+├── thirdparty
+└── tools
+
+13 directories, 6 files

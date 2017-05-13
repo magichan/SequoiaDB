@@ -340,17 +340,24 @@ namespace engine
       _pSME             = pSME ;
 
       UINT32 segmentPages = pStorageBase->segmentPages() ;
+      // ???? 
       UINT32 segmentPagesSqure = pStorageBase->segmentPagesSquareRoot() ;
       UINT32 releaseBegin  = 0 ;
       BOOLEAN inUse        = FALSE ;
       dmsSegmentSpace      *newspace = NULL ;
+      
       UINT32 i             = 0 ;
 
+      // pageNum 当前的 pagename 的个数，放入在文件的 header 中
       for ( i = 0 ; i < pStorageBase->pageNum() ; ++i )
       {
          if ( 0 == ( i & ( ( 1 << segmentPagesSqure ) - 1 ) ) )
          {
+          // 每 1<<segmentPagesSqure　个 pages 构建一个 newspace 
+          // 并且放入到 SMEMgr 下的 _segmets vector 
             newspace = SDB_OSS_NEW dmsSegmentSpace( i, segmentPages, this ) ;
+            // 构造一个 dmsSegmentSpace 要做什么?
+            // 定义他 startExtent=i , totalSize=segmentPages  
             if ( NULL == newspace )
             {
                PD_LOG ( PDERROR, "Unable to allocate memory" ) ;
@@ -364,6 +371,8 @@ namespace engine
 
          if ( DMS_SME_FREE != pSME->getBitMask( i ) && !inUse )
          {
+           // 满足上述条件说明，前面一段都是未被使用的 pages ，将这一段构造成一个 _dmsSegmentNode 变量(高位为开始地址
+           // 低位为长度，然后放入　_freeSpaceList (带碎片整理)
             rc = newspace->releasePages( releaseBegin, i - releaseBegin,
                                          FALSE ) ;
             if ( rc )

@@ -66,6 +66,8 @@ static INT32 FMP_STATUS_M[FMP_CONTROL_SETP_MAX][FMP_CONTROL_SETP_MAX]
         do {_step = (step) ;}while(FALSE)
 
 CHAR FMP_COORD_SERVICE[OSS_MAX_SERVICENAME + 1] = {0};
+// 协调节点
+
 CHAR *FMP_COORD_HOST = "localhost" ;
 CHAR g_UserName[ OSS_MAX_PATHSIZE + 1 ] = { 0 } ;
 CHAR g_Password[ OSS_MAX_PATHSIZE + 1 ] = { 0 } ;

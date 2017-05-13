@@ -1281,6 +1281,8 @@ namespace engine
       vector< UINT32 >  domainGroups ;
 
       rc = _checkCSObj( createObj, csInfo ) ;
+      // 从传入参数 cateteObj 获得 csInfo 的参数
+	  
       PD_RC_CHECK( rc, PDERROR, "Check create collection space obj[%s] failed,"
                    "rc: %d", createObj.toString().c_str(), rc ) ;
       csName = csInfo._pCSName ;
@@ -1308,6 +1310,7 @@ namespace engine
       }
 
       rc = _assignGroup( &domainGroups, groupID ) ;
+      // _assignGroup 随机获取一个 gruop ID 
       PD_RC_CHECK( rc, PDERROR, "Assign group for collection space[%s] "
                    "failed, rc: %d", csName, rc ) ;
       catGroupID2Name( groupID, strGroupName, _pEduCB ) ;
@@ -1689,6 +1692,7 @@ namespace engine
    {
       INT32 rc = SDB_OK ;
       MsgOpQuery *pQueryReq = (MsgOpQuery *)pMsg ;
+      // 获得的 pMsg 包强转成 MsgOpQuery 类
 
       PD_TRACE_ENTRY ( SDB_CATALOGMGR_PROCESSCOMMANDMSG ) ;
       MsgOpReply replyHeader ;
@@ -1724,6 +1728,7 @@ namespace engine
       rc = msgExtractQuery( (CHAR*)pMsg, &flag, &pCMDName, &numToSkip,
                             &numToReturn, &pQuery, &pFieldSelector,
                             &pOrderBy, &pHint ) ;
+      // 通过移动指针，获得特定位置，特定长度的值，根据定义放入对应的参数中
       PD_RC_CHECK( rc, PDERROR, "Failed to extract query msg, rc: %d", rc ) ;
 
       if ( writable && !pmdIsPrimary() )

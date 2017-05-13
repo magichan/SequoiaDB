@@ -1,0 +1,55 @@
+.
+├── engine
+│   ├── aggr
+│   ├── auth 
+│   ├── bar backup and recovery
+│   ├── bps bufferPool service 
+│   ├── bson 二进制 json 文件 
+│   ├── cat  编目节点
+│   ├── client
+│   ├── cls cluster service 
+│   ├── coord 协调节点
+│   ├── dms
+│   ├── dps data protect system 数据保护
+│   ├── fap
+│   ├── gtest google test libary
+│   ├── include 头文件
+│   ├── ixm 索引节点
+│   ├── mdocml unix mampage compiler 
+          mdocml == mondoc is a suite of tools 
+          compiling madoc 
+          is an ISC licensed utility for formationg man pages, specifically those written in mdoc marco language 
+
+│   ├── mig migration services
+│   ├── mon 监控 CB APP storage Unit
+│   ├── msg
+│   ├── mth methods services 
+│   ├── ncurses 写界面的代码库，
+│   ├── net
+│   ├── omagent
+│   ├── omsvc
+│   ├── opt Optimizer 优化
+
+│   ├── oss  系统封装库
+│   ├── pcre 正则库
+│   ├── pd
+│   ├── pmd  process Model 
+│   ├── qgm
+│   ├── rest RESTful Services 
+│   ├── rtn
+│   ├── snappy
+│   ├── spd
+│   ├── spt Scripting 
+│   ├── sql
+│   ├── ssh2
+│   ├── test
+│   ├── tools
+│   └── util utilities 
+└── web
+    ├── config
+    ├── css
+    ├── images
+    ├── js
+    └── language
+
+47 directories

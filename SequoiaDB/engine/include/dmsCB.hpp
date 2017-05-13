@@ -64,11 +64,15 @@ namespace engine
    class _dmsStorageUnit ;
 
    class _SDB_DMS_CSCB : public SDBObject
+  // 集合管理 
    {
    public:
       UINT32 _topSequence ;
+      //　队列干嘛的
       CHAR   _name [ DMS_COLLECTION_SPACE_NAME_SZ + 1 ] ;
+      // 集合名字
       _dmsStorageUnit *_su ;
+      // 集合存储单元
       _SDB_DMS_CSCB ( const CHAR *pName, UINT32 topSequence,
                       _dmsStorageUnit *su )
       {
@@ -105,16 +109,20 @@ namespace engine
          }
       } ;
       std::map<const CHAR*, dmsStorageUnitID, cmp_cscb> _cscbNameMap ;
+      // 集合名字　和　集合存储单位　和　集合控制块的 map 容器 
       std::vector<SDB_DMS_CSCB*>          _cscbVec ;
       std::vector<SDB_DMS_CSCB*>          _delCscbVec ;
+      // 已经被删除的 cscb vetor 
       std::vector<ossRWMutex*>            _latchVec ;
       std::vector<dmsStorageUnitID>       _freeList ;
+      // 空闲的 storageUnit
 
       std::vector< ossSpinXLatch* >       _vecCSMutex ;
 
       typedef std::pair<ossTick,dmsStorageUnitID>  _pageCleanHistory ;
       std::list<_pageCleanHistory>                 _pageCleanHistoryList ;
       std::set<dmsStorageUnitID>                   _pageCleanHistorySet ;
+      // 和内存页有关的东西,但内存写管理不单纯交给了系统
 
       ossSpinXLatch           _stateMtx;
       ossEvent                _backEvent ;
@@ -125,6 +133,7 @@ namespace engine
       dmsTempCB               _tempCB ;
 
       dmsIxmKeySorterCreator* _ixmKeySorterCreator ;
+      // 和索引有关，不在存储的核心部分
 
    private:
       void  _logCSCBNameMap () ;
@@ -154,6 +163,7 @@ namespace engine
                                 SDB_DPSCB *dpsCB,
                                 SDB_DMS_CSCB *&pCSCB ) ;
       void _CSCBNameMapCleanup () ;
+      // 清空 _cscbNameMap 中的所有的 storageunit　变量 
       INT32 _joinPageCleanSU ( dmsStorageUnitID suID ) ;
 
       INT32 _delCollectionSpace ( const CHAR *pName, _pmdEDUCB *cb,
@@ -168,6 +178,7 @@ namespace engine
       virtual const CHAR* cbName() const { return "DMSCB" ; }
 
       virtual INT32  init () ;
+      // 根据配置的路径，加载所有的
       virtual INT32  active () ;
       virtual INT32  deactive () ;
       virtual INT32  fini () ;
@@ -237,7 +248,7 @@ namespace engine
 
       INT32 registerBackup( _pmdEDUCB *cb ) ;
       void  backupDown( _pmdEDUCB *cb ) ;
-
+　　// 用于 bar 库， backup and ex
       INT32 registerRebuild( _pmdEDUCB *cb ) ;
       void  rebuildDown( _pmdEDUCB *cb ) ;
 

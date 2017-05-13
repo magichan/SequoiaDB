@@ -70,18 +70,18 @@ namespace engine
       _dmsExtent define
    */
    struct _dmsExtent : public SDBObject
-   {
+   { // Record 构成 Extent 
       CHAR        _eyeCatcher [2] ;
       UINT16      _blockSize ;   // num of pages, i.e. 4k to 128MB
       UINT16      _mbID ;        // 1 to 4096
       CHAR        _flag ;
       CHAR        _version ;
-      dmsExtentID _logicID ;
-      dmsExtentID _prevExtent ;
-      dmsExtentID _nextExtent ;
+      dmsExtentID _logicID ;   
+      dmsExtentID _prevExtent ;  
+      dmsExtentID _nextExtent ;  // 本身,前 extent ，后 extent
       UINT32      _recCount ;
-      dmsOffset   _firstRecordOffset ;
-      dmsOffset   _lastRecordOffset ;
+      dmsOffset   _firstRecordOffset ; 
+      dmsOffset   _lastRecordOffset ; // 多个 record 构成一个 extent 
       INT32       _freeSpace ;
 
       void init( UINT16 numPages, UINT16 mbID, UINT32 totalSize )
@@ -130,6 +130,8 @@ namespace engine
    #define DMS_META_EXTENT_CURRENT_V      1
 
    /*
+    * 根据 init 函数，后面会跟着东西，是 extentID 组成的序列　
+    * 由 segNum 决定
       _dmsMetaExtent define
    */
    struct _dmsMetaExtent : public SDBObject
@@ -139,7 +141,7 @@ namespace engine
       UINT16      _mbID ;        // 1 to 4096
       CHAR        _flag ;
       CHAR        _version ;
-      UINT32      _segNum ;
+      UINT32      _segNum ;  /
       UINT32      _usedSegNum ;
 
       void init( UINT16 numPages, UINT16 mbID, UINT32 segNum )

@@ -567,6 +567,7 @@ namespace  engine
       Static var define
    */
    static CHAR ossTrapExceptionPath [ OSS_MAX_PATHSIZE+1 ] = {0} ;
+   // 在 Main 函数附近被初始化
 
    void ossSetTrapExceptionPath ( const CHAR *path )
    {

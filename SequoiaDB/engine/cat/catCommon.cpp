@@ -342,7 +342,11 @@ namespace engine
                        const BSONObj & hint,
                        pmdEDUCB * cb,
                        BSONObj & obj )
-   {
+     // 获得一个集合下的一个对象
+     // matcher 是匹配条件
+     // selector 是查询结构
+     // hint 限制条件 
+   { 
       INT32 rc                = SDB_OK ;
       SINT64 contextID        = -1 ;
       pmdKRCB *pKRCB          = pmdGetKRCB() ;
@@ -357,6 +361,8 @@ namespace engine
                      0, cb, 0, 1, dmsCB, rtnCB, contextID ) ;
       PD_RC_CHECK( rc, PDERROR, "Failed to query from %s, rc: %d",
                    collectionName, rc ) ;
+	  // rtnQuery query 
+	  // rtnGetMore get data 
 
       rc = rtnGetMore( contextID, 1, buffObj, cb, rtnCB ) ;
       if ( rc )

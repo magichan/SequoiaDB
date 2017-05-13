@@ -49,12 +49,12 @@ using namespace bson ;
 namespace engine
 {
 
-   class _monCollection ;
+   class _monCollection ; 
    class _monStorageUnit ;
-   class _monIndex ;
-   class _ixmIndexCB ;
-   class _dmsTempCB ;
-   class _SDB_DMSCB ;
+   class _monIndex ; // 监控 集合 存储 和 索引
+   class _ixmIndexCB ; // 缩影控制
+   class _dmsTempCB ; // 临时表控制
+   class _SDB_DMSCB ; // 管理数据控制块
    class _pmdEDUCB ;
    class _mthMatcher ;
    class _mthModifier ;
@@ -91,6 +91,9 @@ namespace engine
          _dmsStorageUnit ( const CHAR *pSUName, UINT32 sequence,
                            INT32 pageSize = DMS_PAGE_SIZE_DFT,
                            INT32 lobPageSize = DMS_DEFAULT_LOB_PAGE_SZ ) ;
+        // Suname 是 collection name, 根据　suName 打开相应的文件
+        // 初始化对应的　storageDate 和 storageIndex
+        // 和一些 infomation 
          ~_dmsStorageUnit() ;
 
          INT32 open ( const CHAR *pDataPath, const CHAR *pIndexPath,
@@ -127,6 +130,7 @@ namespace engine
          void     dumpInfo ( set<_monStorageUnit> &storageUnitList,
                              BOOLEAN sys = FALSE ) ;
 
+         // 将对象的信息存储到 set 中, mon 模块监控用的信息
          INT32    getSegExtents ( const CHAR *pName,
                                   vector< dmsExtentID > &segExtents,
                                   dmsMBContext *context = NULL ) ;

@@ -116,11 +116,13 @@ namespace engine
    typedef _dmsStorageUnitHeader dmsStorageUnitHeader ;
    #define DMS_HEADER_SZ   sizeof(dmsStorageUnitHeader)
 
-   #define DMS_SME_LEN                 (DMS_MAX_PG/8)
+   #define DMS_SME_LEN                 (DMS_MAX_PG/8) // 页面长度，一个 bit 是一个页面，所以 一个字节是 8 个 bit ，因此采用 DMS_MA
+   //X_PG/8 计算 DMS_SMS_LEN 
    #define DMS_SME_FREE                 0
    #define DMS_SME_ALLOCATED            1
 
    /* Space Management Extent, 1 bit for 1 page */
+   // 利用 DMS_SMS_FREE 和 DMS_SME_ALLOCATED 分别描述页面是否被分配出去
    struct _dmsSpaceManagementExtent : public SDBObject
    {
       CHAR _smeMask [ DMS_SME_LEN ] ;
@@ -287,12 +289,17 @@ namespace engine
          ossSpinSLatch                 _segmentLatch ;
          ossSpinXLatch                 _pagecleanerLatch ;
          dmsSMEMgr                     _smeMgr ;
-         UINT32                        _dataSegID ;
-         UINT32                        _pageNum ;
-         INT32                         _maxSegID ;
+         UINT32                        _dataSegID ; //  _dataSegID = ossMmapFile::segmentSize()
+         // OssMmap 所管理的 _segment 中 data segment ( 不是 header 等管理性的 segment ) 的开始位置
+         UINT32                        _pageNum ; // current page number 
+         INT32                         _maxSegID ; //　OssMmap 所管理的 _segment 中 SegID 最大的那个
+         // _dataSegID 和 _maxSegID 构成了 data segment 的范围
          UINT32                        _segmentPages ;
+         // Segment Size 是固定的，SegmentPages 是 Size/_pageSize　计算的
          UINT32                        _segmentPagesSquare ;
+         // segment 含有多个 pages ，用移位表示
          UINT32                        _pageSizeSquare ;
+         // 将页面的大小使用为表示，比如 4kb ,应该就是 12 ,
          CHAR                          _fullPathName[ OSS_MAX_PATHSIZE + 1 ] ;
          BOOLEAN                       _isTempSU ;
 

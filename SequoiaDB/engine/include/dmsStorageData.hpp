@@ -118,6 +118,7 @@ namespace engine
    #define DMS_SET_MB_DROPPED(x)    do {(x)=DMS_MB_FLAG_DROPED ;} while(0)
    #define DMS_IS_MB_NORMAL(x)      (DMS_MB_FLAG_USED==(x))
    #define DMS_SET_MB_NORMAL(x)     do {(x)=DMS_MB_FLAG_USED ;} while(0)
+   // 判断 MB 的状态
 
    #define DMS_IS_MB_OFFLINE_REORG(x)  \
       ((0!=((x)&DMS_MB_FLAG_OFFLINE_REORG))&&(DMS_IS_MB_INUSE(x)))
@@ -205,25 +206,36 @@ namespace engine
       } ;
 
       CHAR           _collectionName [ DMS_COLLECTION_NAME_SZ+1 ] ;
+
       UINT16         _flag ;
+      // 描述 stoargeData 的状态
       UINT16         _blockID ;
+      // 块 ID 
+
       dmsExtentID    _firstExtentID ;
       dmsExtentID    _lastExtentID ;
+      // 
       UINT32         _numIndexes ;
       dmsRecordID    _deleteList [_max] ;
+      // 被删除的　
       dmsExtentID    _indexExtent [DMS_COLLECTION_MAX_INDEX] ;
+      // index Extent
       UINT32         _logicalID ;
       UINT32         _indexHWCount ;
       UINT32         _attributes ;
+
       dmsExtentID    _loadFirstExtentID ;
       dmsExtentID    _loadLastExtentID ;
+
       dmsExtentID    _mbExExtentID ;
+
       UINT64         _totalRecords ;
       UINT32         _totalDataPages ;
       UINT32         _totalIndexPages ;
       UINT64         _totalDataFreeSpace ;
       UINT64         _totalIndexFreeSpace ;
       UINT32         _totalLobPages ;
+      // 具体描述什么 ???? 
       CHAR           _pad [ 404 ] ;
 
       void reset ( const CHAR *clName = NULL,
@@ -356,6 +368,7 @@ namespace engine
 
    /*
       _dmsMBStatInfo define
+      存储一个 dmsStorageDate 对象所管理的所有数据的统计信息
    */
    struct _dmsMBStatInfo
    {
@@ -488,11 +501,15 @@ namespace engine
    }
 
    #define DMS_MME_OFFSET                 ( DMS_SME_OFFSET + DMS_SME_SZ )
+   // DMS_SMS_OFFSET = DMS_HEADER_OOFSET + DMS_HEADER_SZ = 0 + sizefo(dmsStorageUnitHeader) 
+   // DMS_SME_SZ = sizeof(dmsSpaceManagemetExtent)
    #define DMS_DATASU_EYECATCHER          "SDBDATA"
    #define DMS_DATASU_CUR_VERSION         1
    #define DMS_CONTEXT_MAX_SIZE           (2000)
    #define DMS_RECORDS_PER_EXTENT_SQUARE  4     // value is 2^4=16
+   // DMS records per extent square(平方)
    #define DMS_RECORD_OVERFLOW_RATIO      1.2f
+   // DMS record overflow ratio 
 
    /*
       DMS TRUNCATE TYPE DEFINE
@@ -527,6 +544,7 @@ namespace engine
       } ;
 
       typedef std::map<const CHAR*, UINT16, cmp_str>        COLNAME_MAP ;
+      // 
 #if defined (_WINDOWS)
       typedef COLNAME_MAP::iterator                         COLNAME_MAP_IT ;
       typedef COLNAME_MAP::const_iterator                   COLNAME_MAP_CIT ;
@@ -537,6 +555,7 @@ namespace engine
 
       public:
          _dmsStorageData ( const CHAR *pSuFileName, dmsStorageInfo *pInfo ) ;
+         // pInfo 传入的也是页面大小的配置信息
          ~_dmsStorageData () ;
 
          void  syncMemToMmap () ;
@@ -715,15 +734,21 @@ namespace engine
 
       private:
          dmsMetadataManagementExtent         *_dmsMME ;     // 4MB
+         // dmsMetadataBlock array  Unit/Data 所控制的所有 block  
 
          ossSpinSLatch                       _mblock [ DMS_MME_SLOTS ] ;
          dmsMBStatInfo                       _mbStatInfo [ DMS_MME_SLOTS ] ;
+         // 和 _dmsMME 中 MB 数组的值一一对应，分别是 Slatch 和 statInfo 
          ossSpinSLatch                       _metadataLatch ;
+
          COLNAME_MAP                         _collectionNameMap ;
+
          UINT32                              _logicalCSID ;
          dmsStorageUnitID                    _CSID ;
+         // 在 SDM_CSCB 初始化过程中被定义　
 
          vector<dmsMBContext*>               _vecContext ;
+         // 搞不清干嘛的
          ossSpinXLatch                       _latchContext ;
 
          _dmsStorageIndex                    *_pIdxSU ;
@@ -807,6 +832,7 @@ namespace engine
                                                    UINT16 mbID, UINT32 clLID,
                                                    INT32 lockType )
    {
+     // 传入 mbID  和 clLID 
       if ( mbID >= DMS_MME_SLOTS )
       {
          return SDB_INVALIDARG ;

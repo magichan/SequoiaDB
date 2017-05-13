@@ -15,7 +15,7 @@
    You should have received a copy of the GNU Affero General Public License
    along with this program. If not, see <http://www.gnu.org/license/>.
 
-   Source File Name = pmdMain.cpp
+   Source File Name = pmdkMain.cpp
 
    Descriptive Name = Process MoDel Main
 
@@ -35,6 +35,8 @@
    Last Changed =
 
 *******************************************************************************/
+
+
 #include "ossVer.h"
 #include "pmd.hpp"
 #include "rtn.hpp"
@@ -107,12 +109,14 @@ namespace engine
 
       rc = pmdGetStartup().init( pmdGetOptionCB()->getDbPath() ) ;
       PD_RC_CHECK( rc, PDERROR, "Start up check failed[rc:%d]", rc ) ;
+      // 打开参数对应的文件，尝试某些操作
 
       startType = pmdGetStartup().getStartType() ;
       bOk = pmdGetStartup().isOK() ;
       PD_LOG( PDEVENT, "Start up from %s, data is %s",
               pmdGetStartTypeStr( startType ),
-              bOk ? "normal" : "abnormal" ) ;
+              bOk ? "normal" : "abnormal" );
+      // 日志记录
 
       rc = getQgmStrategyTable()->init() ;
       PD_RC_CHECK( rc, PDERROR, "Init qgm strategy table failed, rc: %d",
@@ -163,27 +167,30 @@ namespace engine
    // PD_TRACE_DECLARE_FUNCTION ( SDB_PMDMSTTHRDMAIN, "pmdMasterThreadMain" )
    INT32 pmdMasterThreadMain ( INT32 argc, CHAR** argv )
    {
+     // 开启主线程
       INT32      rc       = SDB_OK ;
       PD_TRACE_ENTRY ( SDB_PMDMSTTHRDMAIN );
-      pmdKRCB   *krcb     = pmdGetKRCB () ;
+      pmdKRCB   *krcb     = pmdGetKRCB () ; // 数据库 参数 , 在 pmd.h 中已定义
       UINT32     startTimerCount = 0 ;
       CHAR      verText[ OSS_MAX_PATHSIZE + 1 ] = { 0 } ;
 
-      rc = pmdResolveArguments ( argc, argv ) ;
+      rc = pmdResolveArguments ( argc, argv ) ; // 解析参数，覆盖 config
       if ( rc )
       {
          ossPrintf( "Failed resolving arguments(error=%d), exit"OSS_NEWLINE,
                     rc ) ;
          goto error ;
       }
-      if ( PMD_IS_DB_DOWN )
+      if ( PMD_IS_DB_DOWN ) // 利用 宏展开，判断是否 down 掉
       {
          return rc ;
       }
 
       sdbEnablePD( pmdGetOptionCB()->getDiagLogPath(),
                    pmdGetOptionCB()->diagFileNum() ) ;
+      // 开启。。。
       setPDLevel( (PDLEVEL)( pmdGetOptionCB()->getDiagLevel() ) ) ;
+      // 设置日志等级
 
       ossSprintVersion( "Version", verText, OSS_MAX_PATHSIZE, FALSE ) ;
 
@@ -196,10 +203,12 @@ namespace engine
          krcb->getOptionCB()->toBSON( confObj ) ;
          PD_LOG( PDEVENT, "All configs: %s", confObj.toString().c_str() ) ;
       }
+      // 把配置存入日志
 
       {
          ossProcLimits limitInfo ;
          rc = limitInfo.init() ;
+         // 初始化限制信息
          if ( SDB_OK != rc )
          {
             PD_LOG( PDWARNING, "can not init limit info:%d", rc ) ;
@@ -222,17 +231,31 @@ namespace engine
 
       rc = pmdEnableSignalEvent( pmdGetOptionCB()->getDiagLogPath(),
                                  (PMD_ON_QUIT_FUNC)pmdOnQuit ) ;
+      // pmd 开启单事件信号, 设置获得停止信号时，如何操作
       PD_RC_CHECK ( rc, PDERROR, "Failed to enable trap, rc: %d", rc ) ;
+      // 错误日志记录
 
       sdbGetPMDController()->registerCB( pmdGetDBRole() ) ;
+      // sdbGetPMDController 返回一个全局静态 pdmController 变量　
+      // pdmController 利用 registerCB 函数根据参数调用 PMD_REGISTER_CB , 依次加载静态变量
+      // PMD_REGISTER_CB 调用 _SDB_KRCB 的 registerCB  的方法
+      // 把静态变量的参数加入 _SDB_KRCB 的 _arrayCBS 和 _array0args 数组中
 
       rc = _pmdSystemInit() ;
+      // _pmdStartup 类执行 init  
+     //这是函数从指定的路径中读取启动文件并初始化，然后初始化SQL相关的策略。
+     //启动文件是一个隐藏文件，当数据库正常或者异常退出时候，
+     //会记录数据库的状态。如果是从异常退出，则在再次启动的时候，会重新找主节点做全量同步，是自身数据和主节点一致
+      
       if ( rc )
       {
          goto error ;
       }
 
       rc = krcb->init() ;
+      // _pmdKRCB::init 函数　
+      // 依次启动各个模块
+
       if ( rc )
       {
          PD_LOG( PDERROR, "Failed to init krcb, rc: %d", rc ) ;
@@ -247,6 +270,7 @@ namespace engine
 
       while ( PMD_IS_DB_UP && startTimerCount < PMD_START_WAIT_TIME &&
               !krcb->isBusinessOK() )
+        // PMD_IS_DB_UP 启动，启动时间限制， 通过 krcb 设置 _BusinessOK参数
       {
          ossSleepmillis( 100 ) ;
          startTimerCount += 100 ;
@@ -262,6 +286,7 @@ namespace engine
       {
          PD_LOG( PDWARNING, "Start warning (timeout)" ) ;
       }
+      // 分析启动错误
 
       {
          EDUID agentEDU = PMD_INVALID_EDUID ;
@@ -269,9 +294,12 @@ namespace engine
          eduMgr->startEDU ( EDU_TYPE_PIPESLISTENER,
                             (void*)pmdGetOptionCB()->getServiceAddr(),
                             &agentEDU ) ;
+         // 管道监听者　
          eduMgr->regSystemEDU ( EDU_TYPE_PIPESLISTENER, agentEDU ) ;
+         // 把这个EDU 放入 systemEDU 中
 
          rc = eduMgr->waitUntil( agentEDU, PMD_EDU_RUNNING ) ;
+         // 等待 EDU running 
          PD_RC_CHECK( rc, PDERROR, "Wait pipe listener to running "
                       "failed, rc: %d", rc ) ;
       }

@@ -156,7 +156,8 @@ namespace engine
 
       _pmdEDUMgr     _eduMgr ;
 
-      _pmdOptionsMgr _optioncb ;
+      _pmdOptionsMgr _optioncb ;// cb 的选项设置
+      
       ossTick        _curTime ;
 
       pmdEDUCB       _mainEDU ;
@@ -317,6 +318,7 @@ namespace engine
     * This variable is unique per process
     */
    extern pmdKRCB pmd_krcb ;
+   //
    OSS_INLINE pmdKRCB* pmdGetKRCB()
    {
       return &pmd_krcb ;

@@ -172,6 +172,8 @@ namespace engine
 
       PD_TRACE1 ( SDB__PMDSTARTUP_INIT, PD_PACK_STRING ( _fileName.c_str() ) ) ;
       rc = ossAccess ( _fileName.c_str() ) ;
+      // 查看权限
+
       if ( SDB_FNE == rc )
       {
          _startType = SDB_START_NORMAL ;
@@ -200,6 +202,7 @@ namespace engine
       }
 
       rc = ossOpen ( _fileName.c_str(), mode, OSS_RU|OSS_WU|OSS_RG, _file ) ;
+      // open a file 
       if ( SDB_OK != rc )
       {
 #if defined (_WINDOWS)

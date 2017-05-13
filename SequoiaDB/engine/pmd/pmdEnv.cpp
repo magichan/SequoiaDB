@@ -50,7 +50,7 @@ namespace engine
       static pmdSysInfo s_sysInfo ;
       return &s_sysInfo ;
    }
-   SDB_ROLE pmdGetDBRole()
+   SDB_ROLkE pmdGetDBRole()
    {
       return pmdGetSysInfo()->_dbrole ;
    }
@@ -338,6 +338,7 @@ namespace engine
       pmdGetSysInfo()->_pQuitFunc = pFunc ;
 
       SetConsoleCtrlHandler( (PHANDLER_ROUTINE)pmdCtrlHandler, TRUE ) ;
+      // 设置控制台控制线程
 
       return SDB_OK ;
    }

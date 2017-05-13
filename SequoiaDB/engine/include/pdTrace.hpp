@@ -284,7 +284,7 @@ typedef struct _pdTraceArgTuple pdTraceArgTuple ;
       if ( sdbGetPDTraceCB()->_traceStarted.compare(TRUE) )  \
       {                                                             \
          pdTraceArgTuple argTuple[PD_TRACE_MAX_ARG_NUM] ;           \
-         ossMemset ( &argTuple[0], 0, sizeof(argTuple) ) ;          \
+         ossMemset ( &argTuple[0], 0, sizeof(argTuple) ) ;          \　置空
          pdTraceFunc ( funcCode, PD_TRACE_RECORD_FLAG_ENTRY,        \
                        __FILE__, __LINE__, &argTuple[0] ) ;         \
       }                                                             \

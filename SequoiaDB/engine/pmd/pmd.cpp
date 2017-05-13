@@ -157,18 +157,22 @@ namespace engine
       INT32 index = 0 ;
       IControlBlock *pCB = NULL ;
 
+
       _mainEDU.setName( "Main" ) ;
+      // 初始化 EDU Name
       if ( NULL == pmdGetThreadEDUCB() )
       {
          pmdDeclareEDUCB( &_mainEDU ) ;
       }
 
       rc = ossGetHostName( _hostName, OSS_MAX_HOSTNAME ) ;
+      // 设置 _hostName
       PD_RC_CHECK( rc, PDERROR, "Failed to get host name, rc: %d", rc ) ;
 
       _init = TRUE ;
 
       for ( index = 0 ; index < SDB_CB_MAX ; ++index )
+        // 依次初始化控制块
       {
          pCB = _arrayCBs[ index ] ;
          if ( !pCB )
@@ -186,6 +190,7 @@ namespace engine
       for ( index = 0 ; index < SDB_CB_MAX ; ++index )
       {
          pCB = _arrayCBs[ index ] ;
+         // 依次启动控制块
          if ( !pCB )
          {
             continue ;

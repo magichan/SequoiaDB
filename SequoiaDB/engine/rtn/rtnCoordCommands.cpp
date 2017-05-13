@@ -720,6 +720,10 @@ namespace engine
       goto done ;
    }
 
+   
+   
+   
+   
    // PD_TRACE_DECLARE_FUNCTION ( SDB_RTNCOCOM__PRINTDEBUG, "rtnCoordCommand::_printDebug" )
    void rtnCoordCommand::_printDebug ( CHAR *pReceiveBuffer,
                                        const CHAR *pFuncName )

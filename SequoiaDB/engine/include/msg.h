@@ -18,7 +18,7 @@
 
    Descriptive Name =
 
-   When/how to use:
+   When/how to use: 定义传递的信息结构
 
    Dependencies: N/A
 

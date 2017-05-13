@@ -322,10 +322,15 @@ namespace engine
 
       rc = rtnResolveCollectionNameAndLock ( pCollectionName, dmsCB, &su,
                                              &pCollectionShortName, suID ) ;
+      // 解析需要查询的 Collection , 返回 dmsStrogeUnit 变量 su 和 suId  
       PD_RC_CHECK( rc, PDERROR, "Failed to resolve collection name %s",
                    pCollectionName ) ;
 
       rc = su->data()->getMBContext( &mbContext, pCollectionShortName, -1 ) ;
+
+      //将 su 下面的数据放到 mbContext　中 可能是 manage block
+      // dmsStorageUnit 类的分析，
+      //
       PD_RC_CHECK( rc, PDERROR, "Failed to get dms mb context, rc: %d", rc ) ;
 
       rc = rtnCB->contextNew ( ( flags & FLG_QUERY_PARALLED ) ?

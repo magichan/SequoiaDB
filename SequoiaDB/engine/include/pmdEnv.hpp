@@ -69,6 +69,7 @@ namespace engine
       :_isPrimary( 0 )
       {
          _dbrole        = SDB_ROLE_STANDALONE ;
+         // 独立模式
          _nodeID.value  = MSG_INVALID_ROUTEID ;
          _quitFlag      = FALSE ;
          _dbType        = SDB_TYPE_DB ;

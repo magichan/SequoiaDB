@@ -98,6 +98,7 @@ namespace engine
       ( OSS_BIT_TEST(DMS_RECORD_GETATTR(record),DMS_RECORD_FLAG_COMPRESSED) ? \
        (CHAR*)((CHAR*)(record)+sizeof(INT32)+DMS_RECORD_METADATA_SZ) :        \
        (CHAR*)((CHAR*)(record)+DMS_RECORD_METADATA_SZ) )
+   \\ DMS_RECORD_GETDATA 返回的是一个指针，根据函数，Record 后面紧跟数据，所以 Record 的地址 + Record 的长度
 
    #define DMS_RECORD_GETOVF(record)         \
       *(dmsRecordID*)((char*)(record)+DMS_RECORD_METADATA_SZ)
@@ -109,6 +110,7 @@ namespace engine
       do {                                                                 \
             if ( OSS_BIT_TEST ( DMS_RECORD_GETATTR(recordPtr),             \
                                 DMS_RECORD_FLAG_COMPRESSED ) )             \
+          \\ 检测是否被压缩  \
             {                                                              \
                INT32 uncompLen = 0 ;                                       \
                rc = dmsUncompress( cb, DMS_RECORD_GETDATA(recordPtr),      \
@@ -152,7 +154,7 @@ namespace engine
       (((dmsRecord*)(record))->_previousOffset=(offset))
    #define DMS_RECORD_SETNEXTOFFSET(record,offset) \
       (((dmsRecord*)(record))->_nextOffset=(offset))
-
+\\ 设置 Record 后面的数据，在 dmsStorageData 和 RegorgUnit StorageLoadExtent 中被使用
    #define DMS_RECORD_SETDATA(record,ptr,len)                              \
      do {                                                                  \
         if ( OSS_BIT_TEST(DMS_RECORD_GETATTR(record),                      \

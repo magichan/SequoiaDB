@@ -76,6 +76,7 @@ namespace engine
    */
    _dmsStorageBase::_dmsStorageBase( const CHAR *pSuFileName,
                                      dmsStorageInfo *pInfo )
+     // 用来放到数据库文件的开头
    {
       SDB_ASSERT( pSuFileName, "SU file name can't be NULL" ) ;
 
@@ -133,6 +134,7 @@ namespace engine
 
    INT32 _dmsStorageBase::openStorage( const CHAR *pPath, BOOLEAN createNew,
                                        BOOLEAN delWhenExist )
+     // pPath 数据库文件的路径
    {
       INT32 rc               = SDB_OK ;
       UINT64 fileSize        = 0 ;
@@ -173,6 +175,8 @@ namespace engine
       PD_LOG ( PDDEBUG, "Open storage unit file %s", _fullPathName ) ;
 
       rc = ossMmapFile::open ( _fullPathName, mode, OSS_RU|OSS_WU|OSS_RG ) ;
+      // 把文件映射成 Mmap 形式 
+
       if ( rc )
       {
          PD_LOG ( PDERROR, "Failed to open %s, rc=%d", _fullPathName, rc ) ;
@@ -192,7 +196,7 @@ namespace engine
       }
 
       if ( 0 == fileSize )
-      {
+      { // 新创建的数据
          if ( !createNew )
          {
             PD_LOG ( PDERROR, "storage unit file is empty: %s", _suFileName ) ;
@@ -200,6 +204,9 @@ namespace engine
             goto error ;
          }
          rc = _initializeStorageUnit () ;
+         // 初始化 StorageUnit, 是 Base 的函数
+         // 会做什么: 
+         //
          if ( rc )
          {
             PD_LOG ( PDERROR, "Failed to initialize Storage Unit, rc=%d", rc ) ;
@@ -250,6 +257,11 @@ namespace engine
       }
 
       rc = _smeMgr.init ( this, _dmsSME ) ;
+      // 初始化　SMEMgr 
+      // 做了什么? 
+      // 根据 Header 的 current page 的信息，每 segmentpages 个 pages 构建一个 dmsSegmentSpace 
+      // 根据 _dmsSME 的 bit 位信息，统计 SMEMgr._totalFree , 和将一个　_dmsSegmentSpace 中未被使用的 pages  
+      // 放入 dmsSegmentSpace._freeSpaceList
       if ( rc )
       {
          PD_LOG ( PDERROR, "Failed to initialize SME, rc = %d", rc ) ;
@@ -257,6 +269,8 @@ namespace engine
       }
 
       rc = _onMapMeta( (UINT64)( DMS_SME_OFFSET + DMS_SME_SZ ) ) ;
+      // 在内存中初始化一个　Data._dmsMME ( dmsMetaManagementExtent)
+      // 并且把 _dmsMME 控制的 MB 的信息写入 Data._collectionNameMap , _mbStatInfo 中
       PD_RC_CHECK( rc, PDERROR, "map file[%s] meta failed, rc: %d",
                    _suFileName, rc ) ;
 
@@ -269,6 +283,7 @@ namespace engine
       }
       if ( fileSize != (UINT64)_dmsHeader->_storageUnitSize * pageSize() )
       {
+        // 错误处理
          PD_LOG( PDWARNING, "File[%s] size[%llu] is not match with storage "
                  "unit pages[%u]", _suFileName, fileSize,
                  _dmsHeader->_storageUnitSize ) ;
@@ -286,10 +301,15 @@ namespace engine
       }
 
       _dataSegID = ossMmapFile::segmentSize() ;
+      // 给 _dataSegID 赋值，其值的含义为 ossMmapFile._segments( vector(ossMmapSegmetn> 的 size 
       currentOffset = _dataOffset() ;
+      // _dataOffset = header + SME(SpaceManagementExtent) +MME(MetadataManagementExtent)
       while ( currentOffset < fileSize )
+        // 把所有的字节都扫一遍
       {
-         rc = map ( currentOffset, _getSegmentSize(), NULL ) ;
+         rc = map ( currentOffset, _getSegmentSize(), NULL ) ;  
+         // _geteSegmentSize => 128*1024*1024
+         // 把文件映射到内存中，并且把着一个块形成一个 ossMmapSegment,放到 ossMmap._segment vector
          if ( rc )
          {
             PD_LOG ( PDERROR, "Failed to map data segment at offset %lld",
@@ -299,6 +319,7 @@ namespace engine
          currentOffset += _getSegmentSize() ;
       }
       _maxSegID = (INT32)ossMmapFile::segmentSize() - 1 ;
+      // 和 _dataSegID 作为最小值，这个作为最大值，来记录存放 data 的 ossMmapSegment 的范围
 
       if ( isTempSU() && createNew )
       {
@@ -311,6 +332,7 @@ namespace engine
          SDB_OSS_FREE ( _dirtyList ) ;
       }
       _dirtyList = (CHAR*)SDB_OSS_MALLOC ( maxSegmentNum() / 8 ) ;
+      // 设置回写队列
       if ( !_dirtyList )
       {
          rc = SDB_OOM ;
@@ -321,6 +343,7 @@ namespace engine
       ossMemset ( _dirtyList, 0, maxSegmentNum() / 8 ) ;
 
       _onOpened() ;
+      // 在 index 里会有作用
 
    done:
       return rc ;
@@ -417,6 +440,7 @@ namespace engine
       }
 
       _dmsHeader = SDB_OSS_NEW dmsStorageUnitHeader ;
+      // 描述 Unit 的配置信息 64kb 
       if ( !_dmsHeader )
       {
          PD_LOG ( PDSEVERE, "Failed to allocate memory to for dmsHeader" ) ;
@@ -426,8 +450,11 @@ namespace engine
       }
 
       _initHeader ( _dmsHeader ) ;
+      // 写入 Header 
+      // 利用 _pStorageInfo 的信息,初始化 UnitHeader 
 
       rc = _writeFile ( &_file, (const CHAR *)_dmsHeader, DMS_HEADER_SZ ) ;
+      // 文件写入 Header 
       if ( rc )
       {
          PD_LOG ( PDERROR, "Failed to write to file duirng SU init, rc: %d",
@@ -438,6 +465,9 @@ namespace engine
       _dmsHeader = NULL ;
 
       _dmsSME = SDB_OSS_NEW dmsSpaceManagementExtent ;
+      //  Space ManageMent Extent 1 bit for 1 page 
+
+
       if ( !_dmsSME )
       {
          PD_LOG ( PDSEVERE, "Failed to allocate memory to for dmsSME" ) ;
@@ -447,6 +477,7 @@ namespace engine
       }
 
       rc = _writeFile ( &_file, (CHAR *)_dmsSME, DMS_SME_SZ ) ;
+      // 把控制 SpaceManageMentExtent 写入
       if ( rc )
       {
          PD_LOG ( PDERROR, "Failed to write to file duirng SU init, rc: %d",
@@ -457,6 +488,12 @@ namespace engine
       _dmsSME = NULL ;
 
       rc = _onCreate( &_file, (UINT64)( DMS_HEADER_SZ + DMS_SME_SZ )  ) ;
+      // 调用 dmsStorageData 的 _onCreate 根据偏移量构造文件
+      // 做了什么
+      // 往文件写入了一个 初始化后的 dmsMetadataManagemetExtent （_dmsMME), 具体的初始化做了什么,把_mbList中的变量挨个调用 _dmsMetadataBlock 的 
+      // reset 函数
+      //
+      //
       PD_RC_CHECK( rc, PDERROR, "create storage unit failed, rc: %d", rc ) ;
 
    done :
