@@ -115,7 +115,7 @@ namespace engine
       // 已经被删除的 cscb vetor 
       std::vector<ossRWMutex*>            _latchVec ;
       std::vector<dmsStorageUnitID>       _freeList ;
-      // 空闲的 storageUnit
+      // 空闲的 storageUnit, 如果初始化一个 StorageUnitID 是从中拿去空闲的给他赋值
 
       std::vector< ossSpinXLatch* >       _vecCSMutex ;
 

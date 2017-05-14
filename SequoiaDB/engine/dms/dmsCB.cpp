@@ -914,20 +914,24 @@ namespace engine
          goto error ;
       }
       rc = _CSCBNameLookup( pName, &cscb ) ;
+      // 根据 Collection Space Name ，去找到 SDM_DMS_CSCB ，collection space control block 
       if ( SDB_OK == rc )
-      {
+      {// 找到了有问题，就退出
          rc = SDB_DMS_CS_EXIST;
          goto error;
       }
       else if ( rc != SDB_DMS_CS_NOTEXIST )
       {
+        // 返回其他的也退出
          goto error;
       }
 
       pageSize = su->getPageSize() ;
       lobPageSz = su->getLobPageSize() ;
+      // 获取配置信息
       if ( NULL != dpsCB )
       {
+        // 生成 record 
          rc = dpsCSCrt2Record( pName, pageSize, lobPageSz, record ) ;
          if ( SDB_OK != rc )
          {
@@ -946,6 +950,8 @@ namespace engine
       }
 
       rc = _CSCBNameInsert ( pName, topSequence, su, suID ) ;
+      // 从 _freeList 中找到空闲的值赋值给 _suID ,并且设置 su 的参数
+      // 根据 输入参数，将 CSCB 加入 DMS_CB 中的的 _cscbNameMap 和 _cscbVec 两个参数中
       if ( SDB_OK == rc )
       {
          INT32 tempRC = SDB_OK ;

@@ -2,8 +2,8 @@
 
 st=>start: Start 
 e=>end: End
-op1=>operation:DMS控制函数初试化 _SDB_DMSB::init()
-op2=>operation:rtnLoadCollectionSpaces(载入数据库文件路径) 
+op0=>operation:DMS控制函数初试化 _SDB_DMSB::init()
+op1=>operation:rtnLoadCollectionSpaces(载入数据库文件路径) 
 op2=>operation:遍览文件夹下的文件，一个数据库文件对应一个 collection ,并且初始化出其对应的 dmsStorageUnit 变量 
 op2_1=>operation:dmsStorageUnit的初始化工作有，初始化 stroageInfo( pageSzie suName,等信息 ) 
 op2_2=>operation:new出一个  Unit　所下属的 dmsStorageData 
@@ -31,5 +31,7 @@ op4_2=>operation: 开启 index 和 lob 的 Data
 
 op5=>operation: dmsCB->addCollectionSpace: 根据 csName 将数据在 storageUnit 中初始化
 
+
+st->op0->op1->op2->op3->op4->op4->e
 
 ```

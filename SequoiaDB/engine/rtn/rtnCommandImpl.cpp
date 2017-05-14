@@ -1151,7 +1151,8 @@ namespace engine
 
       rc = rtnResolveCollectionNameAndLock ( pCollection, dmsCB, &su,
                                              &pCollectionShortName, suID ) ;
-
+      // resovle collection name from full name , and put it int collectionshortname 
+      
       if ( rc && pCollectionShortName && (flags&FLG_CREATE_WHEN_NOT_EXIST) )
       {
          CHAR temp [ DMS_COLLECTION_SPACE_NAME_SZ +
@@ -1172,6 +1173,7 @@ namespace engine
          }
       }
 
+      // create a  collection space when it is not exist
       if ( rc )
       {
          PD_LOG ( PDERROR, "Failed to resolve collection name %s, rc: %d",
@@ -1180,6 +1182,7 @@ namespace engine
       }
 
       rc = dmsCB->writable( cb ) ;
+      // 检查数据库是否可写
       PD_RC_CHECK( rc, PDERROR, "Database is not writable, rc = %d", rc ) ;
       writable = TRUE ;
 

@@ -607,6 +607,7 @@ namespace engine
       PD_RC_CHECK( rc, PDERROR, "dms mb lock failed, rc: %d", rc ) ;
 
       rc = _findFreeSpace ( numPages, firstFreeExtentID, context ) ;
+      // 找到合适 numpages 大小的空间 pages 空间，并返回第一个 pirstFreeExtent(pagesID) 
       if ( rc )
       {
          PD_LOG ( PDERROR, "Error find free space for %d pages, rc = %d",
@@ -615,8 +616,12 @@ namespace engine
       }
 
       extAddr = (dmsExtent*)extentAddr( firstFreeExtentID ) ;
+      // 找到 firstFreeExtentID 对应的实际指针
       extAddr->init( numPages, context->mbID(),
                      (UINT32)numPages << pageSizeSquareRoot() ) ;
+      // 将 numpages 赋值给 _blockSize 
+      // _mbID 给 dmsExtent._mbID 
+      // 剩余的空间是 
 
       if ( TRUE == add2LoadList )
       {
@@ -1242,6 +1247,7 @@ namespace engine
                                          UINT16 initPages,
                                          BOOLEAN sysCollection,
                                          BOOLEAN noIDIndex )
+
    {
       INT32 rc                = SDB_OK ;
       PD_TRACE_ENTRY ( SDB__DMSSTORAGEDATA_ADDCOLLECTION ) ;
@@ -1251,6 +1257,16 @@ namespace engine
                                         << IXM_FIELD_NAME_UNIQUE <<
                                         true << IXM_FIELD_NAME_V << 0 <<
                                         IXM_FIELD_NAME_ENFORCED << true ) ;
+      // BSON("key"<<bson(id<<1)<<name<<$id<<unique<<true<<v<<0<<enforecd<<true)
+      // {
+      //  "key":{
+      //  "id":1
+      //  }
+      //  "name":$id,
+      //  "unqiue":true,
+      //  "v"<<0,
+      //  "enforeced":true
+      // }
       dpsMergeInfo info ;
       dpsLogRecord &record    = info.getMergeBlock().record() ;
       UINT32 logRecSize       = 0;
@@ -1264,9 +1280,11 @@ namespace engine
       dmsMBContext *context   = NULL ;
 
       UINT32 segNum           = DMS_MAX_PG >> segmentPagesSquareRoot() ;
+      // 总共有多少个 segNum
       UINT32 mbExSize         = (( segNum << 3 ) >> pageSizeSquareRoot()) + 1 ;
       dmsExtentID mbExExtent  = DMS_INVALID_EXTENT ;
       dmsMetaExtent *mbExtent = NULL ;
+      // 给了一个　extent 的 header 
 
       SDB_ASSERT( pName, "Collection name cat't be NULL" ) ;
 
@@ -1276,6 +1294,7 @@ namespace engine
 
       PD_CHECK( initPages <= segmentPages(), SDB_INVALIDARG, error, PDERROR,
                 "Invalid pages: %u", initPages ) ;
+      // initPages　一个 sgement 有多个 pages 
 
       if ( dpscb )
       {
@@ -1300,6 +1319,7 @@ namespace engine
       if ( !isTempSU () )
       {
          rc = _findFreeSpace( mbExSize, mbExExtent, NULL ) ;
+         // 找到 mbExExtent 位置的 page 到 mbExSize 之后长度的空间是空白的
          PD_RC_CHECK( rc, PDERROR, "Allocate metablock expand extent failed, "
                       "pageNum: %d, rc: %d", mbExSize, rc ) ;
       }
@@ -1336,7 +1356,7 @@ namespace engine
          goto error ;
       }
 
-      logicalID = _dmsHeader->_MBHWM++ ;
+      logicalID = _dmsHeader->_MBHWM++ ; // 逻辑的 ID 获取没搞情 ???? 
       mb = &_dmsMME->_mbList[newCollectionID] ;
       mb->reset( pName, newCollectionID, logicalID, attributes ) ;
       _mbStatInfo[ newCollectionID ].reset() ;
@@ -1346,9 +1366,17 @@ namespace engine
       if ( !isTempSU () )
       {
          mbExtent = ( dmsMetaExtent* )extentAddr( mbExExtent ) ;
+         // extentAddr 做了什么 
+         // 1. 讲 mbExExtent( PageId) 转换成 ossMmapFile 所下所 _segment 的下标，获得这个 extent 经过 mmap 映射后的段位置
+         // 和段内的页偏移量 
+         // 2. 利用 segment._ptr 获得段在内存的实际指针，然后根据 页偏移量*页的大小 获得 mbExExtent 所指向页面的实际指针 
+         // 3. 把这个指针强转成 extent2Segment 变量
+
          PD_CHECK( mbExtent, SDB_SYS, error, PDERROR, "Invalid meta extent[%d]",
                    mbExExtent ) ;
          mbExtent->init( mbExSize, newCollectionID, segNum ) ;
+// 初始化，并且会越界访问结构体后面的内容，这段内容存放着一个数组，这个数据已两个值为一单元，一个单元对应这 pages 分为固定长度的 segments 中的一个，第一个值指向 segment 的开头，第二值指向结尾
+
          mb->_mbExExtentID = mbExExtent ;
          mbExExtent = DMS_INVALID_EXTENT ;
       }
@@ -1374,6 +1402,7 @@ namespace engine
       dropDps = dpscb ;
 
       rc = getMBContext( &context, newCollectionID, logicalID, EXCLUSIVE ) ;
+      // 获取一个 sdmMBContext 变量，里面存放这 一个 MB 的所有控制信息
       if ( rc )
       {
          PD_LOG( PDERROR, "Failed to get mb[%u] context, rc: %d",

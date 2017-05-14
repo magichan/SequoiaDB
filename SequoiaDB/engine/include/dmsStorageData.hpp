@@ -745,7 +745,8 @@ namespace engine
 
          UINT32                              _logicalCSID ;
          dmsStorageUnitID                    _CSID ;
-         // 在 SDM_CSCB 初始化过程中被定义　
+         // 在 SDM_CSCB 初始化过程中被定义　,准确的说是在　SDM_DMSCB::_CSCB
+         // NameInsert 中被设置
 
          vector<dmsMBContext*>               _vecContext ;
          // 搞不清干嘛的
@@ -832,7 +833,7 @@ namespace engine
                                                    UINT16 mbID, UINT32 clLID,
                                                    INT32 lockType )
    {
-     // 传入 mbID  和 clLID 
+     // 传入 mbID  和 logicID   
       if ( mbID >= DMS_MME_SLOTS )
       {
          return SDB_INVALIDARG ;
@@ -854,7 +855,7 @@ namespace engine
       else
       {
          *pContext = SDB_OSS_NEW dmsMBContext ;
-      }
+      } // 获取一个 dmsMBcontext 变量
       _latchContext.release() ;
 
       if ( !(*pContext) )
