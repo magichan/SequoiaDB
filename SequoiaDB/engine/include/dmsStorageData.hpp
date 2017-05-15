@@ -212,6 +212,7 @@ namespace engine
       UINT16         _blockID ;
       // 块 ID 
 
+
       dmsExtentID    _firstExtentID ;
       dmsExtentID    _lastExtentID ;
       // 
@@ -226,8 +227,10 @@ namespace engine
 
       dmsExtentID    _loadFirstExtentID ;
       dmsExtentID    _loadLastExtentID ;
+      // 可以操作的所有文件的 Extent 
 
       dmsExtentID    _mbExExtentID ;
+      // 存放 dmsMetaExtent 和 ossMmap.segment 
 
       UINT64         _totalRecords ;
       UINT32         _totalDataPages ;

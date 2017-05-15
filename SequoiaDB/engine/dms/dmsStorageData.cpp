@@ -621,28 +621,34 @@ namespace engine
                      (UINT32)numPages << pageSizeSquareRoot() ) ;
       // 将 numpages 赋值给 _blockSize 
       // _mbID 给 dmsExtent._mbID 
-      // 剩余的空间是 
+      // 剩余的空间是  pages*pagesSize - sizeof(dmsExtent) 
+      // 领头作用的 Extent 
 
       if ( TRUE == add2LoadList )
       {
          extAddr->_prevExtent = context->mb()->_loadLastExtentID ;
+         // 指向 _loadLastExtentID 
          extAddr->_nextExtent = DMS_INVALID_EXTENT ;
+         // 指向空
          if ( DMS_INVALID_EXTENT == context->mb()->_loadFirstExtentID )
          {
             context->mb()->_loadFirstExtentID = firstFreeExtentID ;
+            // loadFirstExtentID 是 collection 的第一个数据页
          }
 
          if ( DMS_INVALID_EXTENT != extAddr->_prevExtent )
          {
             dmsExtent *prevExt = (dmsExtent*)extentAddr(extAddr->_prevExtent) ;
             prevExt->_nextExtent = firstFreeExtentID ;
-         }
+         }// 链表补全计划
 
          context->mb()->_loadLastExtentID = firstFreeExtentID ;
       }
       else
       {
          rc = addExtent2Meta( firstFreeExtentID, extAddr, context ) ;
+         // 把 extent 的信息放入 _metadataBlockEx 的 _array[segmentID] ,segmentID 是 firstFreeExtentID 对应的段
+         // 方便快速找到吧
          PD_RC_CHECK( rc, PDERROR, "Add extent to meta failed, rc: %d", rc ) ;
 
          /*
@@ -1114,6 +1120,7 @@ namespace engine
       dmsMBEx *mbEx = NULL ;
       PD_TRACE_ENTRY ( SDB__DMSSTORAGEDATA_ADDEXTENT2META ) ;
       UINT32 segID = extent2Segment( extID ) - dataStartSegID() ;
+      // ossMapFile 所管理的 segID 
       dmsExtentID lastExtID = DMS_INVALID_EXTENT ;
       dmsExtent *prevExt = NULL ;
       dmsExtent *nextExt = NULL ;
@@ -1151,6 +1158,7 @@ namespace engine
       else
       {
          mbEx = ( dmsMBEx* )extentAddr( context->mb()->_mbExExtentID ) ;
+         // 获取 dmsMBEX 
          if ( NULL == mbEx )
          {
             rc = SDB_SYS ;
@@ -1167,7 +1175,7 @@ namespace engine
             goto error ;
          }
 
-         mbEx->getLastExtentID( segID, lastExtID ) ;
+         mbEx->getLastExtentID( segID, lastExtID ) ; // 返回 segID 对应的最后的 LastExtentID 
 
          if ( DMS_INVALID_EXTENT == lastExtID )
          {

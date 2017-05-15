@@ -213,9 +213,7 @@ namespace engine
                                             UINT32 *pSegOffset = NULL ) ;
          OSS_INLINE dmsExtentID segment2Extent( UINT32 segID,
                                                 UINT32 segOffset = 0 ) ;
-
-         OSS_INLINE ossValuePtr extentAddr ( INT32 extentID ) ;
-         OSS_INLINE dmsExtentID extentID ( ossValuePtr extendAddr ) ;
+OSS_INLINE ossValuePtr extentAddr ( INT32 extentID ) ; OSS_INLINE dmsExtentID extentID ( ossValuePtr extendAddr ) ;
          OSS_INLINE void lockPageCleaner () ;
          OSS_INLINE void unlockPageCleaner () ;
 
